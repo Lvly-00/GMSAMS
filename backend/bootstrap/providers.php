@@ -1,7 +1,12 @@
 <?php
 
 use App\Providers\AppServiceProvider;
+use App\Providers\AuthServiceProvider;
+// use App\Providers\HorizonServiceProvider;
 
 return [
-    AppServiceProvider::class,
+    App\Providers\AppServiceProvider::class,
+    App\Providers\AuthServiceProvider::class,
+    // App\Providers\HorizonServiceProvider::class,
 ];
+
