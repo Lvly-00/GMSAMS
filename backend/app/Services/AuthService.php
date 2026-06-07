@@ -12,6 +12,10 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
+use App\Jobs\Auth\HandleFailedLoginJob;
+use App\Jobs\Auth\HandleSuccessfulLoginJob;
+use App\Jobs\Auth\LogSecurityEventJob;
+use App\Jobs\Auth\RecordLoginAttemptJob;
 
 class AuthService
 {
@@ -24,81 +28,50 @@ class AuthService
     public function attemptLogin(string $login, string $password, bool $remember, Request $request): array
     {
         $user = User::query()
-            ->with(['role:id,name'])
-            ->where(function ($query) use ($login) {
-                $query->where('username', $login)
-                    ->orWhere('email', $login);
-            })
+            ->with('role:id,name')
+            ->where('username', $login)
+            ->orWhere('email', $login)
             ->first();
 
-        if ($user === null) {
-            $this->recordLoginAttempt(null, $login, false, $request);
-
-            throw ValidationException::withMessages([
-                'login' => ['Invalid credentials.'],
-            ]);
+        if (! $user) {
+            dispatch(new RecordLoginAttemptJob(null, $login, false, $request->ip()));
+            throw ValidationException::withMessages(['login' => ['Invalid credentials.']]);
         }
 
         if (! $user->is_active) {
-            throw ValidationException::withMessages([
-                'login' => ['This account has been deactivated.'],
-            ]);
+            throw ValidationException::withMessages(['login' => ['This account has been deactivated.']]);
         }
 
         if ($user->isLocked()) {
-            $this->activityLogService->log(
-                user: $user,
-                actionType: 'security_lockout',
-                moduleName: 'auth',
-                description: 'Login attempt while account is locked.',
-                request: $request,
-            );
+            dispatch(new LogSecurityEventJob($user->id, 'lockout_attempt', $request->ip()));
 
-            throw ValidationException::withMessages([
-                'login' => ['Account is temporarily locked. Try again later.'],
-            ]);
+            throw ValidationException::withMessages(['login' => ['Account is temporarily locked.']]);
         }
 
         if (! Hash::check($password, $user->password_hash)) {
-            $this->handleFailedLogin($user, $request);
-            $this->recordLoginAttempt($user, $login, false, $request);
-
-            throw ValidationException::withMessages([
-                'login' => ['Invalid credentials.'],
-            ]);
+            dispatch(new HandleFailedLoginJob($user->id, $request->ip(), $login));
+            throw ValidationException::withMessages(['login' => ['Invalid credentials.']]);
         }
 
-        return DB::transaction(function () use ($user, $remember, $request) {
-            $user->update([
-                'failed_attempts' => 0,
-                'locked_until' => null,
-                'last_login_at' => Carbon::now(),
-            ]);
+        // ⚡ ONLY CRITICAL WRITE
+        $user->update([
+            'failed_attempts' => 0,
+            'locked_until' => null,
+            'last_login_at' => now(),
+        ]);
 
-            $this->recordLoginAttempt($user, $user->username, true, $request);
+        // Sanctum token (FAST + REQUIRED)
+        $token = $user->createToken(
+            'spa-' . Str::uuid()
+        )->plainTextToken;
 
-            Auth::login($user, $remember);
+        // async side effects
+        dispatch(new HandleSuccessfulLoginJob($user->id, $token, $request->ip()));
 
-            $tokenName = 'gmsams-spa-'.Str::uuid();
-            $plainToken = $user->createToken($tokenName)->plainTextToken;
-
-            $session = $this->sessionService->create($user, $plainToken, $request);
-
-            $this->activityLogService->log(
-                user: $user,
-                actionType: 'login',
-                moduleName: 'auth',
-                description: 'User logged in successfully.',
-                request: $request,
-                sessionId: $session->id,
-            );
-
-            return [
-                'user' => $user,
-                'token' => $plainToken,
-                'session_id' => $session->id,
-            ];
-        });
+        return [
+            'user' => $user,
+            'token' => $token,
+        ];
     }
 
     public function logout(User $user, Request $request, ?string $plainToken = null): void

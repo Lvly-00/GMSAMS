@@ -14,16 +14,20 @@ class SessionService
         private readonly ActivityLogService $activityLogService,
     ) {}
 
-    public function create(User $user, string $plainToken, Request $request): UserSession
-    {
+    public function create(
+        User $user,
+        string $plainToken,
+        string $ip,
+        ?string $userAgent = null
+    ): UserSession {
         $timeoutMinutes = (int) config('gmsams.session_timeout_minutes', 15);
         $now = Carbon::now();
 
         return UserSession::query()->create([
             'user_id' => $user->id,
             'token_hash' => hash('sha256', $plainToken),
-            'ip_address' => $request->ip(),
-            'user_agent' => $request->userAgent(),
+            'ip_address' => $ip,
+            'user_agent' => $userAgent,
             'last_active' => $now,
             'expires_at' => $now->copy()->addMinutes($timeoutMinutes),
         ]);

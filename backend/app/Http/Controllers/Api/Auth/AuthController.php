@@ -28,14 +28,10 @@ class AuthController extends Controller
             request: $request,
         );
 
-        /** @var User $user */
-        $user = $result['user'];
-
         return response()->json([
             'message' => 'Login successful.',
             'token' => $result['token'],
-            'user' => new UserResource($user),
-            'redirect_to' => $this->dashboardRouteForRole($user->role->name),
+            'user' => new UserResource($result['user']),
         ]);
     }
 
