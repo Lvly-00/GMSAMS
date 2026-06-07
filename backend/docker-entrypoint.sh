@@ -1,27 +1,25 @@
 #!/bin/bash
 set -e
 
-# ------------------------------
-# Laravel container startup script
-# ------------------------------
-
-# Run Laravel commands
-echo "Running storage link..."
-php artisan storage:link || true   # skip if already exists
-
-echo "Running migrations..."
-# php artisan migrate:fresh --seed --force
-php artisan migrate --force
-
-echo "Caching config..."
+# 1. Production Caching (Makes Laravel boot instantly)
+echo "Optimizing Laravel..."
 php artisan config:cache
 php artisan route:cache
 php artisan view:cache
+php artisan event:cache
 
+# 2. Database Tasks
+echo "Running migrations..."
+php artisan migrate --force
+
+# 3. Start the Queue Worker in the background
+# We MUST have a worker because we changed QUEUE_CONNECTION to database
 echo "Starting queue worker..."
-php artisan queue:work --sleep=3 --tries=3 --timeout=90 &
+php artisan queue:work --daemon --tries=3 --timeout=90 &
 
-# Start Laravel development server
-# Bind to 0.0.0.0 so it's accessible outside the container
-echo "Starting Laravel server on port 8000..."
-exec php artisan serve --host=0.0.0.0 --port=8000
+# 4. START THE SERVER
+# Avoid 'artisan serve'. Use the PHP built-in server directly for slightly better perf,
+# OR better yet, if your Render Plan allows, use 'php-fpm' (requires Nginx).
+# For now, let's use the most optimized version of the CLI server:
+echo "Starting Production Server..."
+exec php -S 0.0.0.0:8000 -t public

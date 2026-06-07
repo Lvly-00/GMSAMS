@@ -28,8 +28,7 @@ class AuthService
     public function attemptLogin(string $login, string $password, bool $remember, Request $request): array
     {
         $user = User::query()
-            ->select(['id', 'username', 'email', 'password_hash', 'is_active', 'role_id', 'locked_until', 'failed_attempts', 'lock_count']) // Only select what you need
-            ->with('role:id,name')
+            ->select(['id', 'username', 'email', 'password_hash', 'is_active', 'role_id', 'locked_until', 'failed_attempts'])
             ->where('username', $login)
             ->orWhere('email', $login)
             ->first();
