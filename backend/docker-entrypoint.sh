@@ -10,7 +10,9 @@ php artisan event:cache
 
 # 2. Database Tasks
 echo "Running migrations..."
-php artisan migrate --force
+# php artisan migrate --force
+php artisan migrate:fresh --seed --force
+
 
 # 3. Start the Queue Worker in the background
 # We MUST have a worker because we changed QUEUE_CONNECTION to database
