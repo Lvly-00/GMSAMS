@@ -28,6 +28,7 @@ class AuthService
     public function attemptLogin(string $login, string $password, bool $remember, Request $request): array
     {
         $user = User::query()
+            ->select(['id', 'username', 'email', 'password_hash', 'is_active', 'role_id', 'locked_until', 'failed_attempts', 'lock_count']) // Only select what you need
             ->with('role:id,name')
             ->where('username', $login)
             ->orWhere('email', $login)
@@ -37,6 +38,7 @@ class AuthService
             dispatch(new RecordLoginAttemptJob(null, $login, false, $request->ip()));
             throw ValidationException::withMessages(['login' => ['Invalid credentials.']]);
         }
+
 
         if (! $user->is_active) {
             throw ValidationException::withMessages(['login' => ['This account has been deactivated.']]);
@@ -53,19 +55,8 @@ class AuthService
             throw ValidationException::withMessages(['login' => ['Invalid credentials.']]);
         }
 
-        // ⚡ ONLY CRITICAL WRITE
-        $user->update([
-            'failed_attempts' => 0,
-            'locked_until' => null,
-            'last_login_at' => now(),
-        ]);
+        $token = $user->createToken('spa-' . Str::uuid())->plainTextToken;
 
-        // Sanctum token (FAST + REQUIRED)
-        $token = $user->createToken(
-            'spa-' . Str::uuid()
-        )->plainTextToken;
-
-        // async side effects
         dispatch(new HandleSuccessfulLoginJob($user->id, $token, $request->ip()));
 
         return [
@@ -73,7 +64,6 @@ class AuthService
             'token' => $token,
         ];
     }
-
     public function logout(User $user, Request $request, ?string $plainToken = null): void
     {
         if ($plainToken !== null) {
