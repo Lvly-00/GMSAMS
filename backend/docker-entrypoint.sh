@@ -10,9 +10,16 @@ echo "Running storage link..."
 php artisan storage:link || true   # skip if already exists
 
 echo "Running migrations..."
-php artisan migrate:fresh --seed --force
-# php artisan migrate --force
+# php artisan migrate:fresh --seed --force
+php artisan migrate --force
 
+echo "Caching config..."
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+
+echo "Starting queue worker..."
+php artisan queue:work --sleep=3 --tries=3 --timeout=90 &
 
 # Start Laravel development server
 # Bind to 0.0.0.0 so it's accessible outside the container
