@@ -15,7 +15,7 @@ class LogSecurityEventJob implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public function __construct(
-        public int $userId,
+        public string  $userId,
         public string $event,
         public string $ip
     ) {}
