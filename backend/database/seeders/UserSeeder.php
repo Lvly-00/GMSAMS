@@ -11,13 +11,15 @@ class UserSeeder extends Seeder
 {
     public function run(): void
     {
+        $hashedPassword = Hash::make('password');
+
         // Head Teacher
         User::create([
             'id' => Str::uuid(),
-            'role_id' => 2, // Teacher Role
+            'role_id' => 2,
             'username' => 'headteacher',
             'email' => 'headteacher@example.com',
-            'password_hash' => Hash::make('password'),
+            'password_hash' => $hashedPassword, 
             'email_verified' => true,
         ]);
 
@@ -28,7 +30,7 @@ class UserSeeder extends Seeder
                 'role_id' => 3,
                 'username' => "teacher{$i}",
                 'email' => "teacher{$i}@example.com",
-                'password_hash' => Hash::make('password'),
+                'password_hash' => $hashedPassword, 
                 'email_verified' => true,
             ]);
         }
@@ -40,7 +42,7 @@ class UserSeeder extends Seeder
                 'role_id' => 4,
                 'username' => "student{$i}",
                 'email' => "student{$i}@example.com",
-                'password_hash' => Hash::make('password'),
+                'password_hash' => $hashedPassword, 
                 'email_verified' => true,
             ]);
         }
