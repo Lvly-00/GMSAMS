@@ -28,41 +28,36 @@ class AuthService
     public function attemptLogin(string $login, string $password, bool $remember, Request $request): array
     {
         $user = User::query()
-            ->select(['id', 'username', 'email', 'password_hash', 'is_active', 'role_id', 'locked_until', 'failed_attempts'])
+            ->with('role:id,name')
             ->where('username', $login)
             ->orWhere('email', $login)
             ->first();
 
-        if (! $user) {
-            dispatch(new RecordLoginAttemptJob(null, $login, false, $request->ip()));
+        if (!$user || !Hash::check($password, $user->password_hash)) {
+            dispatch(new RecordLoginAttemptJob($user?->id, $login, false, $request->ip()));
             throw ValidationException::withMessages(['login' => ['Invalid credentials.']]);
         }
 
-
-        if (! $user->is_active) {
-            throw ValidationException::withMessages(['login' => ['This account has been deactivated.']]);
-        }
-
-        if ($user->isLocked()) {
-            dispatch(new LogSecurityEventJob($user->id, 'lockout_attempt', $request->ip()));
-
-            throw ValidationException::withMessages(['login' => ['Account is temporarily locked.']]);
-        }
-
-        if (! Hash::check($password, $user->password_hash)) {
-            dispatch(new HandleFailedLoginJob($user->id, $request->ip(), $login));
-            throw ValidationException::withMessages(['login' => ['Invalid credentials.']]);
-        }
+        $user->update([
+            'failed_attempts' => 0,
+            'locked_until' => null,
+            'last_login_at' => now(),
+        ]);
 
         $token = $user->createToken('spa-' . Str::uuid())->plainTextToken;
 
-        dispatch(new HandleSuccessfulLoginJob($user->id, $token, $request->ip()));
+
+        $this->sessionService->create($user, $token, $request->ip());
+
+
+        dispatch(new LogSecurityEventJob($user->id, 'Successful Login', $request->ip()));
 
         return [
             'user' => $user,
             'token' => $token,
         ];
     }
+
     public function logout(User $user, Request $request, ?string $plainToken = null): void
     {
         if ($plainToken !== null) {

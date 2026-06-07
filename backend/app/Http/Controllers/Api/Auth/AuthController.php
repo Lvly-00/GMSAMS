@@ -28,10 +28,13 @@ class AuthController extends Controller
             request: $request,
         );
 
+        $redirectUrl = $this->dashboardRouteForRole($result['user']->role->name);
+
         return response()->json([
             'message' => 'Login successful.',
             'token' => $result['token'],
             'user' => new UserResource($result['user']),
+            'redirect_to' => $redirectUrl, // <--- Add this
         ]);
     }
 
