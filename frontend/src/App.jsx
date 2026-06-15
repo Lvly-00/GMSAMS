@@ -3,6 +3,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from 'sonner';
 
 import ProtectedRoute from '@/components/shared/ProtectedRoute';
+import LandingPage from '@/pages/LandingPage';
 
 // Layouts
 import AdminLayout from '@/components/shared/AdminLayout';
@@ -61,7 +62,7 @@ export default function App() {
         <Routes>
 
           {/* ROOT */}
-          <Route path="/" element={<HomeRedirect />} />
+          <Route path="/" element={<LandingPage />} />
 
           {/* LOGIN */}
           <Route path="/login" element={<LoginPage />} />
