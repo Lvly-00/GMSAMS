@@ -211,12 +211,14 @@ export default function LandingPage() {
                         whileInView={{ x: 0, opacity: 1 }}
                         transition={{ duration: 0.8 }}
                         viewport={{ once: true }}
-                        className="hidden lg:block relative w-full h-full"
+
+                        className="hidden lg:flex items-center justify-center w-full h-full"
                     >
                         <img
                             src={AboutUs}
                             alt="ATEC Building"
-                            className=" w-[50] h-[50] object-cover "
+
+                            className="w-[85%] h-auto max-h-[500px] object-contain "
                         />
                     </motion.div>
                 </div>
