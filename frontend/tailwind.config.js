@@ -3,6 +3,9 @@ export default {
   content: ['./index.html', './src/**/*.{js,jsx}'],
   theme: {
     extend: {
+      fontFamily: {
+        sora: ['Sora', 'sans-serif'],
+      },
       colors: {
         primary: {
           DEFAULT: '#1e40af',

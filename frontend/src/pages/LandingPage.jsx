@@ -1,357 +1,362 @@
-import React from 'react';
-import {
-    GraduationCap,
-    Users,
-    Lightbulb,
-    BookOpen,
-    Target,
-    Eye,
-    Calculator,
-    Utensils,
-    Monitor,
-    Settings,
-    Mail,
-    MapPin,
-    Mail as MailIcon
-} from 'lucide-react';
-import  Logo  from '../../public/logo.svg';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion'; // Added Framer Motion
+
+// Components
+import { Button, Drawer, Row, Col, Typography } from 'antd';
+
+// Icons
 import { FaFacebook } from 'react-icons/fa';
 
+// Assets
+import Logo from '../../public/logo.svg';
+import Hero from '../../public/images/Hero.png';
+import AboutUs from '../../public/images/AboutUs.png';
+import Hero1 from '../../public/images/Hero1.png';
+import ATEC from '../../public/images/ATEC.png';
+
+const { Title, Paragraph, Text } = Typography;
+
+// --- ANIMATION VARIANTS ---
+const fadeInUp = {
+    hidden: { opacity: 0, y: 40 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } }
+};
+
+const staggerContainer = {
+    hidden: { opacity: 0 },
+    visible: { opacity: 1, transition: { staggerChildren: 0.2 } }
+};
+
 export default function LandingPage() {
-    return (
-        <div className="font-sans text-slate-800 bg-white">
-            {/* --- NAVIGATION --- */}
-            {/* <nav className="flex items-center justify-between px-10 py-4 sticky top-0 bg-white z-50 shadow-sm">
-                <div className="flex items-center gap-2">
-                    <div className="w-10 h-10 bg-blue-900 rounded-full flex items-center justify-center text-white font-bold text-xs">ATEC</div>
-                    <span className="font-bold text-xl tracking-tighter text-blue-900">ATEC</span>
+    const [visible, setVisible] = useState(false);
+    const [scrolled, setScrolled] = useState(false);
+    const navigate = useNavigate();
+
+    const onClose = () => setVisible(false);
+
+    // Track scroll for navbar effect
+    useEffect(() => {
+        const handleScroll = () => setScrolled(window.scrollY > 50);
+        window.addEventListener('scroll', handleScroll);
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
+
+    // Smooth Scroll Handler
+    const scrollToSection = (e, id) => {
+        e.preventDefault();
+        const element = document.getElementById(id);
+        if (element) {
+            const offset = 100;
+            const elementPosition = element.getBoundingClientRect().top + window.pageYOffset;
+            window.scrollTo({
+                top: elementPosition - offset,
+                behavior: 'smooth',
+            });
+        }
+        onClose();
+    };
+
+    const NavLinks = ({ mobile = false }) => (
+        <ul className={`${mobile ? 'flex flex-col gap-6' : 'hidden lg:flex items-center gap-10'}`}>
+            <li><a href="#home" onClick={(e) => scrollToSection(e, 'home')} className="text-[#063F5C] font-semibold text-lg hover:text-[#2598FE] transition-colors">Home</a></li>
+            <li><a href="#about" onClick={(e) => scrollToSection(e, 'about')} className="text-gray-400 font-semibold text-lg hover:text-[#2598FE] transition-colors">About</a></li>
+            <li><a href="#academics" onClick={(e) => scrollToSection(e, 'academics')} className="text-gray-400 font-semibold text-lg hover:text-[#2598FE] transition-colors">Academics</a></li>
+            <li><a href="#contact" onClick={(e) => scrollToSection(e, 'contact')} className="text-gray-400 font-semibold text-lg hover:text-[#2598FE] transition-colors">Contact Us</a></li>
+        </ul>
+    );
+
+    const coreValues = [
+        { icon: "bx bxs-graduation", title: "ATTITUDE", desc: "ATEC believes that the right attitude leads to righteousness, discipline, and personal growth." },
+        { icon: "bx bxs-group", title: "TEAMWORK", desc: "ATEC values teamwork as a foundation for achieving its mission, vision, and shared goals." },
+        { icon: "bx bxs-heart", title: "EMPOWERMENT", desc: "ATEC empowers graduates through skills, knowledge, and passion for community and economic development." },
+        { icon: "bx bxs-book-alt", title: "CHRIST - CENTERED", desc: "ATEC upholds Christ-centered principles in all its actions, decisions, and institutional practices." },
+    ];
+
+    const TechVocCard = ({ id, title, icon, items }) => (
+        <motion.div
+            variants={fadeInUp}
+            whileHover={{ y: -10 }}
+            className="bg-white rounded-[50px] overflow-hidden shadow-[0_15px_60px_rgba(0,0,0,0.08)] border border-gray-100 flex flex-col transition-all duration-500"
+        >
+            <div className="bg-[#0f172a] p-10 flex flex-row items-center gap-6 text-left">
+                <div className="w-24 h-24 flex-shrink-0 bg-white rounded-full flex items-center justify-center shadow-lg">
+                    <i className={`${icon} text-5xl text-[#0f172a]`}></i>
                 </div>
-                <div className="hidden md:flex gap-8 text-sm font-medium text-slate-600">
-                    <a href="#" className="hover:text-blue-600 transition">Home</a>
-                    <a href="#" className="hover:text-blue-600 transition">About</a>
-                    <a href="#" className="hover:text-blue-600 transition">Academics</a>
-                    <a href="#" className="hover:text-blue-600 transition">Contact Us</a>
+                <div className="flex flex-col">
+                    <h4 className="font-black text-4xl text-white tracking-tight leading-none">{id}</h4>
+                    <p className="text-[11px] text-gray-400 font-bold uppercase tracking-widest mt-2">{title}</p>
                 </div>
-                <button className="border-2 border-blue-900 text-blue-900 px-6 py-1 rounded-full text-sm font-bold hover:bg-blue-900 hover:text-white transition">
-                    LOG IN
-                </button>
-            </nav> */}
-            <header className="w-full px-6 py-8  flex justify-center items-start">
-                {/* Main Capsule Container */}
-                <nav className="w-full max-w-8xl h-20 bg-white rounded-full shadow-xl flex items-center justify-between px-6 md:px-10 border border-gray-100">
-
-                    {/* Left Side: Logo and Brand */}
-                    <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 flex items-center justify-center">
-                            {/* Replace with your actual logo image */}
-                            <img
-                                src={Logo}
-                                alt="ATEC Logo"
-                                className="rounded-full object-contain"
-                            />
-                        </div>
-                        <span className="text-2xl font-black tracking-tight text-[#0f172a]">
-                            ATEC
-                        </span>
-                    </div>
-
-                    {/* Middle: Navigation Links */}
-                    <ul className="hidden lg:flex items-center gap-8 xl:gap-12">
-                        <li>
-                            <a href="#home" className="text-[#3b82f6] font-semibold text-sm hover:opacity-80 transition-opacity">
-                                Home
-                            </a>
-                        </li>
-                        <li>
-                            <a href="#about" className="text-gray-400 font-medium text-sm hover:text-gray-600 transition-colors">
-                                About
-                            </a>
-                        </li>
-                        <li>
-                            <a href="#academics" className="text-gray-400 font-medium text-sm hover:text-gray-600 transition-colors">
-                                Academics
-                            </a>
-                        </li>
-                        <li>
-                            <a href="#contact" className="text-gray-400 font-medium text-sm hover:text-gray-600 transition-colors">
-                                Contact Us
-                            </a>
-                        </li>
-                    </ul>
-
-                    {/* Right Side: Log In Button */}
-                    <div>
-                        <button className="border-[1.5px] border-[#063F5C] text-[#063F5C] px-8 py-2 rounded-full text-xs font-bold tracking-wider hover:bg-[#0f172a] hover:text-white transition-all duration-300 uppercase">
-                            Log In
-                        </button>
-                    </div>
-                </nav>
-            </header>
-
-
-            {/* --- HERO SECTION --- */}
-            <section className="relative h-[600px] flex flex-col items-center justify-center overflow-hidden">
-                {/* Background Mockup */}
-                <div className="absolute inset-0 z-0">
-                    <img
-                        src="https://images.unsplash.com/photo-1562774053-701939374585?auto=format&fit=crop&q=80&w=1920"
-                        alt="Campus Building"
-                        className="w-full h-full object-cover brightness-50"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-b from-transparent to-white"></div>
-                </div>
-
-                <div className="relative z-10 text-center px-4 max-w-4xl">
-                    <h1 className="text-5xl md:text-6xl font-extrabold text-slate-900 mb-2">
-                        Creating Competitive
-                    </h1>
-                    <h1 className="text-5xl md:text-6xl font-extrabold text-blue-600 mb-6">
-                        Students, Globally.
-                    </h1>
-                    <p className="text-slate-600 text-lg mb-8 max-w-2xl mx-auto leading-relaxed">
-                        ATEC Technological College provides students with quality and technology-driven education that enhances knowledge, skills, and professional growth.
-                    </p>
-                    <button className="bg-slate-900 text-white px-10 py-3 rounded-full font-bold hover:bg-blue-800 transition shadow-lg">
-                        Get Started
-                    </button>
-                </div>
-            </section>
-
-            {/* --- VALUES / PILLARS --- */}
-            <section className="px-10 -mt-12 relative z-20">
-                <div className="max-w-6xl mx-auto bg-white rounded-xl shadow-xl grid grid-cols-1 md:grid-cols-4 p-8 border border-slate-100">
-                    {[
-                        { icon: <GraduationCap />, title: "ATTITUDE", desc: "ATEC believes that the right attitude leads to righteousness, discipline, and personal growth." },
-                        { icon: <Users />, title: "TEAMWORK", desc: "ATEC values teamwork as a foundation for achieving its mission, vision, and shared goals." },
-                        { icon: <Lightbulb />, title: "EMPOWERMENT", desc: "ATEC empowers graduates through skills, knowledge, and passion for community and economic development." },
-                        { icon: <BookOpen />, title: "CHRIST-CENTERED", desc: "ATEC upholds Christ-centered principles in all its actions, decisions, and institutional practices." },
-                    ].map((item, idx) => (
-                        <div key={idx} className={`flex flex-col items-center text-center px-4 ${idx !== 3 ? 'md:border-r border-slate-100' : ''}`}>
-                            <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mb-4 border border-blue-100">
-                                {item.icon}
-                            </div>
-                            <h3 className="font-bold text-sm mb-2 text-slate-900">{item.title}</h3>
-                            <p className="text-[11px] text-slate-500 leading-tight uppercase">{item.desc}</p>
+            </div>
+            <div className="p-10 flex-grow bg-white">
+                <div className="space-y-4">
+                    {items.map((item) => (
+                        <div key={item} className="flex items-start gap-3">
+                            <i className="bx bx-check-circle text-[#2598FE] text-xl mt-0.5"></i>
+                            <span className="text-slate-700 font-semibold text-base leading-snug">{item}</span>
                         </div>
                     ))}
                 </div>
+            </div>
+        </motion.div>
+    );
+
+    return (
+        <div className="font-sora text-slate-800 bg-white overflow-x-hidden">
+
+            {/* --- HERO & NAVIGATION --- */}
+            <section className="relative w-full">
+                <header className={`fixed top-0 left-0 w-full z-50 transition-all duration-500 flex justify-center items-start pointer-events-none ${scrolled ? 'py-4' : 'py-6 md:py-10'}`}>
+                    <nav className={`w-full max-w-[95%] md:max-w-[85%] h-14 md:h-20 transition-all duration-500 rounded-full flex items-center justify-between px-6 md:px-10 border pointer-events-auto
+                        ${scrolled ? 'bg-white/90 backdrop-blur-md shadow-2xl border-gray-100' : 'bg-white shadow-lg border-gray-100'}`}>
+                        <div className="flex items-center gap-2 md:gap-3">
+                            <img src={Logo} alt="Logo" className="w-8 h-8 md:w-11 md:h-11 rounded-full object-contain" />
+                            <span className="text-xl md:text-2xl font-bold tracking-tight text-slate-900">ATEC</span>
+                        </div>
+                        <NavLinks />
+                        <div className="flex items-center gap-2">
+                            <Button
+                                onClick={() => navigate('/login')}
+                                shape="round"
+                                className="hidden lg:block border-[#063F5C] text-[#063F5C] font-bold uppercase text-[14px] md:text-[15px] tracking-wider h-8 md:h-10 px-10 md:px-16 hover:!bg-[#2598FE] hover:!text-white transition-all"
+                            >Log In</Button>
+                            <button onClick={() => setVisible(true)} className="lg:hidden flex items-center justify-center text-3xl text-[#063F5C] p-2">
+                                <i className='bx bx-menu-alt-right'></i>
+                            </button>
+                        </div>
+                    </nav>
+
+                    <Drawer placement="right" onClose={onClose} open={visible} width={280} closable={false}>
+                        <div className="flex justify-end"><button onClick={onClose} className="text-4xl text-gray-400"><i className='bx bx-x'></i></button></div>
+                        <div className="flex flex-col h-full justify-between pb-10">
+                            <NavLinks mobile={true} />
+                            <Button
+                                onClick={() => navigate('/login')}
+                                block shape="round"
+                                className="border-[#063F5C] text-[#063F5C] font-bold uppercase h-12">
+                                Log In
+                            </Button>
+                        </div>
+                    </Drawer>
+                </header>
+
+                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 1 }} className="w-full">
+                    <img src={Hero} alt="Hero Banner" className="w-full h-auto block" />
+                </motion.div>
+            </section>
+
+            {/* --- HERO CONTENT --- */}
+            <section className="pt-20 pb-10 bg-white text-center px-4 font-sora" id="home">
+                <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={staggerContainer} className="max-w-4xl mx-auto">
+                    <motion.h1 variants={fadeInUp} className="text-5xl md:text-7xl font-extrabold text-slate-900 mb-2 tracking-tight">
+                        Creating Competitive
+                    </motion.h1>
+                    <motion.h1 variants={fadeInUp} className="text-5xl md:text-7xl font-extrabold text-[#2598FE] mb-8 tracking-tight">
+                        Students, Globally.
+                    </motion.h1>
+                    <motion.p variants={fadeInUp} className="text-[#6A6A6A] text-lg md:text-xl mb-10 max-w-3xl mx-auto leading-relaxed">
+                        ATEC Technological College provides students with quality and technology-driven education that enhances knowledge,
+                        skills, and professional growth. The institution aims to develop globally competitive, innovative, and morally responsible
+                        individuals prepared for future success.
+                    </motion.p>
+                    <motion.div variants={fadeInUp}>
+                        <Button type="primary" shape="round" className="bg-[#0f172a] h-14 min-w-[180px] md:min-w-[200px] text-xl font-bold shadow-xl border-none hover:!bg-[#2598FE] transition-all font-sora">Get Started</Button>
+                    </motion.div>
+                </motion.div>
+            </section>
+
+            {/* --- CORE VALUES --- */}
+            <section className="px-6 md:px-10 py-20 bg-gray-50/30">
+                <motion.div
+                    initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.3 }} variants={staggerContainer}
+                    className="max-w-7xl mx-auto bg-white rounded-[40px] shadow-xl border border-[#9C9C9C] flex flex-col md:flex-row items-stretch p-8 md:p-12"
+                >
+                    {coreValues.map((item, idx) => (
+                        <motion.div key={idx} variants={fadeInUp} className={`flex-1 flex flex-col items-center text-center px-6 py-6 relative ${idx !== coreValues.length - 1 ? 'md:after:content-[""] md:after:absolute md:after:right-0 md:after:top-1/2 md:after:-translate-y-1/2 md:after:h-32 md:after:w-[1px] md:after:bg-gray-200' : ''}`}>
+                            <motion.div whileHover={{ scale: 1.1, rotate: 5 }} className="w-24 h-24 bg-[#F3F4F6] rounded-full flex items-center justify-center mb-6 transition-colors">
+                                <i className={`${item.icon} text-5xl text-[#2598FE]`}></i>
+                            </motion.div>
+                            <h3 className="font-extrabold text-2xl mb-4 text-black tracking-tight uppercase leading-none">{item.title}</h3>
+                            <p className="text-normal text-[#9C9C9C] font-regular leading-relaxed">{item.desc}</p>
+                        </motion.div>
+                    ))}
+                </motion.div>
             </section>
 
             {/* --- ABOUT SECTION --- */}
-            <section className="py-20 px-10 max-w-7xl mx-auto">
-                <div className="text-center mb-16">
-                    <span className="bg-slate-800 text-white text-[10px] px-4 py-1 rounded-full font-bold uppercase tracking-widest">About</span>
-                    <h2 className="text-4xl font-black text-slate-900 mt-4">Institutional Profile</h2>
-                    <p className="text-slate-400 text-sm italic">Building Skills, Shaping Futures</p>
-                </div>
+            <section className="py-24 px-6 md:px-10 max-w-[1400px] mx-auto font-sora" id="about">
+                <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeInUp} className="text-center mb-20">
+                    <span className="bg-[#1e293b] text-white text-xs px-6 py-2 rounded-full font-bold uppercase tracking-widest shadow-sm">About</span>
+                    <h2 className="text-4xl md:text-6xl font-bold text-slate-950 mt-6 tracking-tight">Institutional Profile</h2>
+                    <p className="text-gray-400 text-xl mt-4 font-regular leading-relaxed max-w-3xl mx-auto">Building Skills, Shaping Futures</p>
+                </motion.div>
 
-                <div className="grid md:grid-cols-2 gap-12 items-center">
-                    <div className="bg-blue-50 p-12 rounded-[3rem] border border-blue-100 relative overflow-hidden">
-                        <div className="absolute top-0 right-0 w-32 h-32 bg-blue-100 rounded-full -mr-16 -mt-16 opacity-50"></div>
-                        <h3 className="text-5xl font-black text-blue-600 mb-6">ABOUT US</h3>
-                        <p className="text-blue-900/80 leading-relaxed text-sm">
-                            ATEC Technological College is a private educational institution located in Apalit, Pampanga, Philippines. It is committed to providing quality and accessible education through its academic and technical-vocational programs that focus on skills development, competency-based learning, and values formation. The institution aims to produce globally competitive graduates who are well-prepared for employment, entrepreneurship, and further studies, making it one of the promising schools in the region.
+                <div className="grid lg:grid-cols-[1.5fr_0.5fr] gap-10 items-center">
+                    <motion.div
+                        initial={{ x: -100, opacity: 0 }} whileInView={{ x: 0, opacity: 1 }} transition={{ duration: 0.8 }} viewport={{ once: true }}
+                        className="!bg-white p-10 md:p-28 rounded-[40px] md:rounded-[50px] border-1 border-gray-100 shadow-2xl"
+                    >
+                        <h3 className="text-6xl md:text-7xl font-black text-[#0277EA] mb-10 tracking-tighter">ABOUT US</h3>
+                        <p className="text-slate-700 leading-[1.8] text-lg md:text-xl font-regular font-sora">
+                            ATEC Technological College is a private educational institution located in Apalit, Pampanga, Philippines.
+                            It is committed to providing quality and accessible education through its academic and technical-vocational
+                            programs that focus on skills development, competency-based learning, and values formation. The institution aims
+                            to produce globally competitive graduates who are well-prepared for employment, entrepreneurship, and further studies,
+                            making it one of the promising schools in the region.
                         </p>
-                    </div>
-                    <div className="rounded-3xl overflow-hidden shadow-2xl h-[400px]">
-                        <img src="https://images.unsplash.com/photo-1541339907198-e08756ebafe3?auto=format&fit=crop&q=80&w=800" alt="ATEC Building" className="w-full h-full object-cover" />
-                    </div>
+                    </motion.div>
+                    <motion.div initial={{ x: 100, opacity: 0 }} whileInView={{ x: 0, opacity: 1 }} transition={{ duration: 0.8 }} viewport={{ once: true }} className="p-6 overflow-hidden h-fit">
+                        <img src={AboutUs} alt="ATEC Building" className="w-full h-auto object-cover rounded-[30px]" />
+                    </motion.div>
                 </div>
             </section>
 
             {/* --- MISSION & VISION --- */}
-            <section className="relative py-20 px-10">
-                <div className="absolute top-0 left-0 w-full h-32 bg-slate-900 -z-10 skew-y-1"></div>
-                <div className="max-w-6xl mx-auto grid md:grid-cols-3 gap-8">
-                    <div className="pt-10">
-                        <h2 className="text-4xl font-black text-slate-900">Shaping <span className="text-blue-600">Purpose</span> and <span className="text-blue-600">Direction</span></h2>
-                        <p className="text-slate-500 mt-4 text-sm">ATEC develops competent, values-driven, globally competitive individuals through quality education.</p>
-                    </div>
-                    <div className="bg-white p-8 rounded-2xl shadow-xl border-t-4 border-blue-600 flex flex-col items-center text-center">
-                        <div className="w-14 h-14 bg-blue-50 rounded-full flex items-center justify-center text-blue-600 mb-4">
-                            <Target size={30} />
-                        </div>
-                        <h4 className="font-black text-xl mb-4">MISSION</h4>
-                        <p className="text-xs text-slate-500 leading-relaxed">ATEC Technological College is a non-stock and non-profit institution that provides quality education producing globally competitive workers through competency-based training employing moral values for the holistic transformation of individuals enabling them to seize the opportunity to manage their own business.</p>
-                    </div>
-                    <div className="bg-white p-8 rounded-2xl shadow-xl border-t-4 border-blue-900 flex flex-col items-center text-center">
-                        <div className="w-14 h-14 bg-slate-50 rounded-full flex items-center justify-center text-blue-900 mb-4">
-                            <Eye size={30} />
-                        </div>
-                        <h4 className="font-black text-xl mb-4">VISION</h4>
-                        <p className="text-xs text-slate-500 leading-relaxed">ATEC Technological College aims to become one of the leading technological institutions offering industry-driven courses and producing highly skilled and morally upright individuals who create an impact to the society and contribute to the nation's progress.</p>
-                    </div>
+            <section className="relative py-24 px-6 md:px-10 mt-20 font-sora bg-white overflow-hidden">
+                <div className="absolute top-0 left-0 w-full h-32 md:h-40 z-0 pointer-events-none">
+                    <svg viewBox="0 0 1440 120" fill="none" className="w-full h-full" preserveAspectRatio="none">
+                        <path d="M-10 20H140C148 20 152 24 150 30L95 100C93 106 87 110 80 110H-10V20Z" fill="#0f172a" />
+                        <path d="M175 20H1450V110H125C117 110 113 106 115 100L170 30C172 24 178 20 185 20H175Z" fill="#0f172a" />
+                    </svg>
+                </div>
+
+                <div className="relative z-10 px-20 md:px-25 max-w-8xl mx-auto mt-15">
+                    <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={staggerContainer} className="grid grid-cols-1 lg:grid-cols-[1.2fr_1fr_1fr] gap-12 items-center">
+                        <motion.div variants={fadeInUp} className="lg:pr-10">
+                            <h2 className="text-4xl md:text-5xl font-bold text-slate-900 leading-[1.1] tracking-tight">Shaping <span className="text-[#2598FE]">Purpose</span> and <span className="text-[#2598FE]">Direction</span></h2>
+                            <p className="text-gray-500 mt-8 text-xl font-Regular leading-relaxed max-w-md">ATEC develops competent, values-driven, globally competitive individuals through quality education.</p>
+                        </motion.div>
+
+                        <motion.div variants={fadeInUp} whileHover={{ y: -10 }} className="bg-white px-10 py-16 md:py-24 rounded-[50px] shadow-[0_20px_50px_rgba(0,0,0,0.1)] border border-gray-100 flex flex-col items-center text-center h-full min-h-[550px] transition-all">
+                            <div className="w-24 h-24 bg-[#E5E7EB] rounded-full flex items-center justify-center mb-10"><i className='bx bx-bulb text-5xl text-[#2598FE]'></i></div>
+                            <h4 className="font-black text-2xl mb-8 tracking-widest text-black uppercase leading-none">MISSION</h4>
+                            <p className="text-lg text-gray-500 leading-[1.8] font-medium max-w-[320px]">
+                                ATEC Technological College aims to become one of the leading technological institutions offering 
+                                industry-driven courses and producing highly skilled and morally upright individuals who create an 
+                                impact to the society and contribute to the nation's progress.</p>
+                        </motion.div>
+
+                        <motion.div variants={fadeInUp} whileHover={{ y: -10 }} className="bg-white px-10 py-16 md:py-24 rounded-[50px] shadow-[0_20px_50px_rgba(0,0,0,0.1)] border border-gray-100 flex flex-col items-center text-center h-full min-h-[550px] transition-all">
+                            <div className="w-24 h-24 bg-[#E5E7EB] rounded-full flex items-center justify-center mb-10"><i className='bx bx-show text-5xl text-[#2598FE]'></i></div>
+                            <h4 className="font-black text-2xl mb-8 tracking-widest text-black uppercase leading-none">VISION</h4>
+                            <p className="text-lg text-gray-500 leading-[1.8] font-medium max-w-[320px]">
+                                ATEC Technological College aims to become one of the leading technological institutions 
+                                offering industry-driven courses and producing highly skilled and morally upright individuals
+                                 who create an impact to the society and contribute to the nation's progress.
+                            </p>
+                        </motion.div>
+                    </motion.div>
                 </div>
             </section>
 
-            {/* --- ACADEMICS --- */}
-            <section className="py-20 px-10 bg-slate-50/50">
-                <div className="text-center mb-16">
-                    <span className="bg-slate-800 text-white text-[10px] px-4 py-1 rounded-full font-bold uppercase tracking-widest">Academics</span>
-                    <h2 className="text-4xl font-black text-slate-900 mt-4 leading-tight">Senior High School Program</h2>
-                    <p className="text-slate-400 text-sm">Prepares students for college, work, and future success.</p>
-                </div>
+            {/* --- ACADEMICS SECTION --- */}
+            <section className="py-24 px-6 md:px-10 bg-white font-sora" id="academics">
+                <div className="max-w-7xl mx-auto">
+                    <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeInUp} className="text-center mb-20">
+                        <span className="bg-[#1e293b] text-white text-xs px-6 py-2 rounded-full font-bold uppercase tracking-widest shadow-sm">Academics</span>
+                        <h2 className="text-4xl md:text-6xl font-bold text-slate-950 mt-6 tracking-tight">Senior High School Program</h2>
+                        <p className="text-gray-400 text-xl mt-4 font-regular leading-relaxed max-w-3xl mx-auto">Prepares students for college, work, and future success.</p>
+                    </motion.div>
 
-                {/* Academic Strand */}
-                <div className="max-w-6xl mx-auto mb-20">
-                    <h3 className="text-center font-black text-2xl mb-10 text-slate-800">Academic Strand</h3>
-                    <div className="grid md:grid-cols-3 gap-6">
-                        {[
-                            { id: 'ABM', title: 'ABM', sub: 'Accountancy, Business and Management', icon: <Calculator size={24} /> },
-                            { id: 'HUMSS', title: 'HUMSS', sub: 'Humanities and Social Sciences', icon: <Users size={24} /> },
-                            { id: 'GAS', title: 'GAS', sub: 'General Academic Strand', icon: <Settings size={24} /> },
-                        ].map((strand) => (
-                            <div key={strand.id} className="bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex items-center gap-4 hover:border-blue-300 transition group cursor-default">
-                                <div className="w-16 h-16 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition">
-                                    {strand.icon}
-                                </div>
-                                <div>
-                                    <h4 className="font-black text-lg">{strand.id}</h4>
-                                    <p className="text-[10px] text-slate-400 uppercase font-bold tracking-tight">{strand.sub}</p>
-                                </div>
-                            </div>
-                        ))}
+                    <div className="mb-24">
+                        <h3 className="text-center font-extrabold text-3xl mb-12 text-slate-900 flex items-center justify-center gap-4">
+                            <div className="h-[2px] w-12 bg-gray-200"></div>Academic Strand<div className="h-[2px] w-12 bg-gray-200"></div>
+                        </h3>
+                        <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={staggerContainer} className="grid md:grid-cols-3 gap-8">
+                            {[
+                                { id: 'ABM', title: 'Accountancy, Business and Management', icon: 'bx bx-trending-up' },
+                                { id: 'HUMSS', title: 'Humanities and Social Sciences', icon: 'bx bx-group' },
+                                { id: 'GAS', title: 'General Academic Strand', icon: 'bx bx-cog' },
+                            ].map((strand) => (
+                                <motion.div key={strand.id} variants={fadeInUp} whileHover={{ scale: 1.05 }} className="bg-white rounded-[30px] shadow-xl border border-gray-100 flex items-center relative overflow-hidden group transition-all">
+                                    <div className="w-4 h-full bg-[#0f172a] absolute left-0 top-0"></div>
+                                    <div className="p-8 pl-12 flex items-center gap-6 w-full">
+                                        <div className="w-20 h-20 bg-gray-100 rounded-full flex-shrink-0 flex items-center justify-center"><i className={`${strand.icon} text-4xl text-[#0f172a]`}></i></div>
+                                        <div><h4 className="font-black text-3xl text-slate-900 leading-none">{strand.id}</h4><p className="text-sm text-gray-400 font-bold mt-2 leading-tight uppercase">{strand.title}</p></div>
+                                    </div>
+                                </motion.div>
+                            ))}
+                        </motion.div>
                     </div>
-                </div>
 
-                {/* Tech-Voc Track */}
-                <div className="max-w-6xl mx-auto">
-                    <h3 className="text-center font-black text-2xl mb-10 text-slate-800">Tech-Voc Track</h3>
-                    <div className="grid md:grid-cols-3 gap-8">
-                        {/* HE */}
-                        <div className="bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-lg">
-                            <div className="bg-slate-900 p-6 flex items-center gap-4 text-white">
-                                <div className="w-12 h-12 bg-white/10 rounded-lg flex items-center justify-center"><Utensils /></div>
-                                <div>
-                                    <h4 className="font-bold text-xl">HE</h4>
-                                    <p className="text-[10px] opacity-70">Home Economics</p>
-                                </div>
-                            </div>
-                            <div className="p-6 space-y-3">
-                                {['Dressmaking NC II', 'Beauty & Nail Care NC II', 'Housekeeping NC II', 'Front Office Services NC II', 'Hair Dressing NC II', 'Wellness Massage NC II', 'Bartending NC II', 'Food and Beverage NC II'].map(item => (
-                                    <div key={item} className="flex items-start gap-2 text-xs text-slate-600">
-                                        <span className="text-blue-600 font-bold">✓</span> {item}
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                        {/* ICT */}
-                        <div className="bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-lg">
-                            <div className="bg-blue-900 p-6 flex items-center gap-4 text-white">
-                                <div className="w-12 h-12 bg-white/10 rounded-lg flex items-center justify-center"><Monitor /></div>
-                                <div>
-                                    <h4 className="font-bold text-xl">ICT</h4>
-                                    <p className="text-[10px] opacity-70 uppercase">Information and Communication Technology</p>
-                                </div>
-                            </div>
-                            <div className="p-6 space-y-3">
-                                {['Computer System Servicing NC II', 'Computer Programming'].map(item => (
-                                    <div key={item} className="flex items-start gap-2 text-xs text-slate-600">
-                                        <span className="text-blue-600 font-bold">✓</span> {item}
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                        {/* IA */}
-                        <div className="bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-lg">
-                            <div className="bg-slate-800 p-6 flex items-center gap-4 text-white">
-                                <div className="w-12 h-12 bg-white/10 rounded-lg flex items-center justify-center"><Settings /></div>
-                                <div>
-                                    <h4 className="font-bold text-xl">IA</h4>
-                                    <p className="text-[10px] opacity-70">Industrial Arts</p>
-                                </div>
-                            </div>
-                            <div className="p-6 space-y-3">
-                                {['Shielded Metal Arc Welding NC II', 'Electronic Products Assembly and Servicing NC II'].map(item => (
-                                    <div key={item} className="flex items-start gap-2 text-xs text-slate-600">
-                                        <span className="text-blue-600 font-bold">✓</span> {item}
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
+                    <div className="grid md:grid-cols-3 gap-10">
+                        <TechVocCard id="HE" title="Home Economics" icon="bx bx-restaurant" items={['Dressmaking NC II',
+    'Beauty & Nail Care NC II',
+    'Housekeeping NC II',
+    'Front Office Services NC II',
+    'Hair Dressing NC II',
+    'Wellness Massage NC II',
+    'Bartending NC II',
+    'Food and Beverage NC II']} />
+                        <TechVocCard id="ICT" title="ICT" icon="bx bx-laptop" items={['Computer System Servicing NC II', 'Computer Programming']} />
+                        <TechVocCard id="IA" title="Industrial Arts" icon="bx bx-wrench" items={['Shielded Metal Arc Welding NC II', 'EPAS NC II']} />
                     </div>
                 </div>
             </section>
 
             {/* --- CONTACT SECTION --- */}
-            <section className="relative py-24 px-10 overflow-hidden">
-                <div className="absolute inset-0 bg-blue-900 -z-10">
-                    <img
-                        src="https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=80&w=1920"
-                        className="w-full h-full object-cover opacity-20"
-                        alt="Office"
-                    />
-                </div>
-
-                <div className="max-w-6xl mx-auto grid md:grid-cols-2 items-center gap-16">
-                    <div className="text-white">
-                        <span className="bg-white/20 px-4 py-1 rounded-full text-xs font-bold uppercase mb-4 inline-block">Contact Us</span>
-                        <h2 className="text-5xl font-black mb-6">We're Here to Help</h2>
-                        <p className="text-blue-100 mb-8 max-w-md">Have questions or need assistance? Our team is always ready to guide and support you every step of the way.</p>
-                        <div className="flex items-center gap-4 bg-white/10 p-4 rounded-xl border border-white/10 backdrop-blur-md">
-                            <div className="w-10 h-10 bg-white text-blue-900 rounded-lg flex items-center justify-center"><MailIcon size={20} /></div>
-                            <div>
-                                <p className="text-xs opacity-60">Email Us</p>
-                                <p className="font-bold">atec_collegeapalit@yahoo.com</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="space-y-4">
-                        <div className="bg-white p-6 rounded-2xl flex items-center gap-6 shadow-2xl">
-                            <div className="w-14 h-14 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center"><MapPin /></div>
-                            <div>
-                                <h4 className="font-black text-blue-900">Apalit Branch</h4>
-                                <p className="text-xs text-slate-500">San Vicente, Apalit Pampanga</p>
-                            </div>
-                        </div>
-                        <div className="bg-white p-6 rounded-2xl flex items-center gap-6 shadow-2xl">
-                            <div className="w-14 h-14 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center"><MapPin /></div>
-                            <div>
-                                <h4 className="font-black text-blue-900">Bulacan Branch</h4>
-                                <p className="text-xs text-slate-500">Sta. Rita, Guiguinto, Bulacan</p>
-                            </div>
-                        </div>
-                    </div>
+            <section className="relative py-28 px-6 overflow-hidden min-h-[800px] flex items-center" id="contact">
+                <div className="absolute inset-0 z-0"><img src={Hero1} className="w-full h-full object-cover" alt="Contact Background" /></div>
+                <div className="max-w-7xl mx-auto relative z-10 w-full">
+                    <Row gutter={[64, 108]} align="middle">
+                        <Col xs={24} lg={12}>
+                            <motion.div initial={{ opacity: 0, x: -50 }} whileInView={{ opacity: 1, x: 0 }} transition={{ duration: 0.8 }} viewport={{ once: true }}>
+                                <Title level={1} className="!text-white !text-7xl !font-extrabold !mb-0 !leading-[1.1] !tracking-tighter drop-shadow-2xl">We're Here to <br /> Help</Title>
+                                <div className="w-48 h-[1.5px] bg-white my-10 shadow-lg"></div>
+                                <Paragraph className="!text-white !text-xl !leading-relaxed !font-regular !mb-0 drop-shadow-md">Have questions? Our team is always ready to guide you every step of the way.</Paragraph>
+                                <div className="flex items-center gap-5 group w-fit mt-10">
+                                    <div className="w-16 h-16 bg-[#0f172a] rounded-full flex items-center justify-center transition-all shadow-xl"><i className='bx bx-envelope text-3xl text-white'></i></div>
+                                    <div><Text className="block !text-white/70 !text-xs !font-bold !uppercase !tracking-widest">Email Us</Text><Text className="!text-white !text-xl !font-bold">atec_collegeapalit@yahoo.com</Text></div>
+                                </div>
+                            </motion.div>
+                        </Col>
+                        <Col xs={24} lg={12}>
+                            <motion.div initial={{ opacity: 0, x: 50 }} whileInView={{ opacity: 1, x: 0 }} transition={{ duration: 0.8 }} viewport={{ once: true }} className="flex flex-col gap-8">
+                                {['Apalit Branch', 'Bulacan Branch'].map((branch, i) => (
+                                    <motion.div key={branch} whileHover={{ x: 10 }} className="bg-white p-8 rounded-[50px] flex items-center gap-8 shadow-[0_30px_60px_rgba(0,0,0,0.3)] border border-gray-100">
+                                        <div className="w-24 h-24 bg-slate-100 rounded-full flex items-center justify-center flex-shrink-0"><i className='bx bxs-map text-5xl text-[#0277EA]'></i></div>
+                                        <div><h4 className="text-4xl font-extrabold text-[#0f172a] mb-2">{branch}</h4><p className="text-lg font-semibold text-slate-500 m-0">{i === 0 ? 'San Vicente, Apalit Pampanga' : 'Sta. Rita, Guiguinto, Bulacan'}</p></div>
+                                    </motion.div>
+                                ))}
+                            </motion.div>
+                        </Col>
+                    </Row>
                 </div>
             </section>
 
             {/* --- FOOTER --- */}
-            <footer className="bg-white pt-20 pb-10 border-t border-slate-100">
-                <div className="max-w-7xl mx-auto px-10 grid md:grid-cols-3 gap-12 mb-16">
-                    <div className="col-span-1">
-                        <div className="flex items-center gap-2 mb-6">
-                            <div className="w-8 h-8 bg-blue-900 rounded-full flex items-center justify-center text-white font-bold text-[8px]">ATEC</div>
-                            <span className="font-black text-2xl tracking-tighter text-slate-900">ATEC</span>
-                        </div>
-                        <p className="text-xs text-slate-500 leading-relaxed">
-                            ATEC Technological College provides students with quality and technology-driven education that enhances knowledge, skills, and professional growth. The institution aims to develop globally competitive, innovative, and morally responsible individuals prepared for future success.
-                        </p>
-                    </div>
-
-                    <div className="md:pl-20">
-                        <h5 className="font-bold text-sm mb-6 uppercase tracking-widest text-slate-400">Quick Links</h5>
-                        <ul className="text-xs text-slate-600 space-y-3 font-medium">
-                            <li><a href="#" className="hover:text-blue-600 transition inline-block relative before:content-['•'] before:mr-2 before:text-blue-600">Home</a></li>
-                            <li><a href="#" className="hover:text-blue-600 transition inline-block relative before:content-['•'] before:mr-2 before:text-blue-600">About</a></li>
-                            <li><a href="#" className="hover:text-blue-600 transition inline-block relative before:content-['•'] before:mr-2 before:text-blue-600">Academics</a></li>
-                            <li><a href="#" className="hover:text-blue-600 transition inline-block relative before:content-['•'] before:mr-2 before:text-blue-600">Contact Us</a></li>
-                        </ul>
-                    </div>
-
-                    <div className="flex flex-col items-end justify-between h-full">
-                        <div className="flex gap-4">
-                            <div className="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center text-slate-600 hover:bg-blue-600 hover:text-white transition cursor-pointer"><FaFacebook size={18} /></div>
-                            <div className="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center text-slate-600 hover:bg-blue-600 hover:text-white transition cursor-pointer"><Mail size={18} /></div>
-                        </div>
-                        <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-8">GMSAMS - Grade Management & Monitoring System</p>
-                    </div>
+            <footer className="bg-white relative z-10">
+                <div className="w-full h-32 md:h-40 relative overflow-hidden">
+                    <svg viewBox="0 0 1440 120" fill="none" className="w-full h-full" preserveAspectRatio="none">
+                        <path d="M-10 20H140C148 20 152 24 150 30L95 100C93 106 87 110 80 110H-10V20Z" fill="#0f172a" />
+                        <path d="M175 20H1450V110H125C117 110 113 106 115 100L170 30C172 24 178 20 185 20H175Z" fill="#0f172a" />
+                    </svg>
                 </div>
-                <div className="border-t border-slate-50 pt-8 px-10 max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                    <p>© 2023 ATEC Technological College</p>
-                    <div className="w-full h-1 bg-slate-900 mt-4 md:mt-0 max-w-[100px]"></div>
+
+                <div className="max-w-7xl mx-auto pt-14 pb-12 px-8">
+                    <Row gutter={[48, 48]}>
+                        <Col xs={24} lg={10}>
+                            <img src={ATEC} alt="ATEC Logo" className="h-20 w-auto object-contain mb-8" />
+                            <p className="text-[13px] text-slate-700 leading-relaxed max-w-sm font-medium mb-10">ATEC Technological College provides quality and technology-driven education...</p>
+                            <p className="text-[13px] text-slate-800 font-bold">@2023 ATEC Technological College</p>
+                        </Col>
+                        <Col xs={24} md={12} lg={7}>
+                            <ul className="space-y-4">
+                                {['Home', 'About', 'Academics', 'Contact Us'].map((item) => (
+                                    <li key={item} className="flex items-center gap-3"><div className="w-1.5 h-1.5 bg-black rounded-full" /><a href={`#${item.toLowerCase().replace(' ', '')}`} onClick={(e) => scrollToSection(e, item.toLowerCase().replace(' ', ''))} className="text-[13px] font-semibold text-slate-800 hover:text-blue-600"> {item} </a></li>
+                                ))}
+                            </ul>
+                        </Col>
+                        <Col xs={24} md={12} lg={7}>
+                            <div className="flex gap-3 mb-6">
+                                <a href="#" className="w-10 h-10 bg-black rounded-full flex items-center justify-center text-white hover:bg-[#0277EA] transition-all"><i className='bx bxl-facebook text-2xl'></i></a>
+                                <a href="#" className="w-10 h-10 bg-black rounded-full flex items-center justify-center text-white hover:bg-[#0277EA] transition-all"><i className='bx bx-envelope text-xl'></i></a>
+                            </div>
+                            <p className="text-[15px] font-medium text-slate-900 leading-tight uppercase">GMSAMS - Grade Management & Monitoring System</p>
+                        </Col>
+                    </Row>
                 </div>
             </footer>
         </div>
     );
-};
+}

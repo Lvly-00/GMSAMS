@@ -2,6 +2,23 @@
 @tailwind components;
 @tailwind utilities;
 
+
+
+@layer base {
+  html {
+    font-family: 'Sora', sans-serif;
+  }
+}
+
+/* Ant Design button override (Ant Design often forces its own font) */
+.ant-btn {
+  font-family: 'Sora', sans-serif !important;
+}
+
 body {
   @apply bg-slate-50 text-slate-900 antialiased;
+}
+
+html {
+  scroll-behavior: smooth;
 }
